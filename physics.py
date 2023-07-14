@@ -1,3 +1,5 @@
+import numpy as np
+
 g = 9.81  # m/s**2
 buoyancy = 0  # N
 force_g = 0  # N
@@ -5,6 +7,10 @@ weight = 0  # kg*m/s**2
 density_water = 1000  # kg/m**2
 pressure = 0  # Pa
 pressure_at_surface = 101.325  # Pa
+force = 0 #N
+mass = 0 #kg
+tau = 0 #Nm
+I = 0 #kgm**2
 
 
 def calculate_buoyancy(v, density_fluid):
@@ -41,10 +47,10 @@ def will_it_float(v, mass):
     force of gravity is given in N, weight is in kgm/s**2
     """
 
-    if v < 0:
-        raise ValueError("volume cannot be negative")
-    elif mass < 0:
-        raise ValueError("mass cannot be negative")
+    if v <= 0:
+        raise ValueError("Invalid volume input")
+    elif mass <= 0:
+        raise ValueError("Invalid mass input")
     weight = mass * g
     force_g = buoyancy - weight
     if buoyancy > force_g:
@@ -68,3 +74,81 @@ def calculate_pressure(depth):
     depth = abs(depth)
     pressure = density_water * g * depth + pressure_at_surface
     return pressure  # in Pa (pascals)
+
+def calculate_acceleration(force, mass):
+
+    '''
+    Problem 4: Calculate acceleration
+
+    Acceleration = force / mass
+    mass cannot be negative
+
+    mass is in kg and force is in N
+    '''
+    if mass <= 0:
+        raise ValueError("Invalid mass input")
+    acceleration = force / mass
+    return acceleration # in m/s**2
+
+def calculate_angular_acceleration(tau, I):
+
+    '''
+    Problem 5: Calculate angular acceleration
+
+    Solve for angular acceleration by rearranging the equation tau=I*angular accceleration to 
+    angular acceleration = tau / I
+
+    Inertia cannot be negative or equal to 0
+
+    Tau is in Nm and I is in kg*(m**2)
+    '''
+
+    if I <= 0:
+        raise ValueError("Invalid inertia input")
+    angular_acceleration = tau/I
+    return angular_acceleration #N/kgm
+
+def calculate_torque(F_magnitude, F_direction, r):
+
+    '''
+    Problem 6: Calculate Torque
+
+    Torque = F * r
+    To find the force perpendicular to r, solve using trig functions
+    Fperp = magnitude * sin(degree)
+
+    F_magnitude and r cannot be negative
+
+    F_magnitude is in N, F_direction is in degrees, r is in m
+    '''
+
+    if F_magnitude < 0:
+        raise ValueError("Invalid magnitude input")
+    elif  r <= 0:
+        raise ValueError("Invalid r input")
+    x = F_magnitude * np.sin(F_direction)
+    torque = x * r
+    return torque #Nm
+
+def calculate_moment_of_inertia(mass, r):
+
+    '''
+    Problem 7: Calculate moment of inertia
+
+    Inertia = sum of mass * r**2
+    moment of inertia = mass * r**2
+
+    mass is in kg, r is in m
+    '''
+
+    if mass <= 0:
+        raise ValueError("Invalid mass input")
+    elif  r <= 0:
+        raise ValueError("Invalid r input")
+    moment_of_inertia = mass * r * r
+    return moment_of_inertia #kg(m**2)
+
+def calculate_auv_acceleration(F_magnitude, F_angle, mass=100,
+                                volume=0.1, thruster_distance=0.5):
+    pass
+    
