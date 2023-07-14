@@ -122,7 +122,7 @@ def calculate_torque(F_magnitude, F_direction, r):
     F_magnitude is in N, F_direction is in degrees, r is in m
     '''
 
-    if F_magnitude < 0:
+    if F_magnitude <= 0:
         raise ValueError("Invalid magnitude input")
     elif  r <= 0:
         raise ValueError("Invalid r input")
@@ -150,5 +150,39 @@ def calculate_moment_of_inertia(mass, r):
 
 def calculate_auv_acceleration(F_magnitude, F_angle, mass=100,
                                 volume=0.1, thruster_distance=0.5):
-    pass
+    
+    '''
+    Problem 8.1: Calculate AUV acceleration
+
+    In order to calculate the acceleration of the auv, we needed to calculate the force
+    of the vector in the x and y directions using trig functions. These forces are then
+    plugged into the calculate_acceleration function in order to find the acceleration
+    of the AUV in the x and y direction. These are returned as an array [acc in x, acc in y]
+
+    F_magnitude is in N, F_angle is in radians, mass is in kg
+    '''
+
+    Fy = F_magnitude * np.sin(F_angle)
+    Fx = F_magnitude * np.cos(F_angle)
+    Ay = calculate_acceleration(Fy, mass)
+    Ax = calculate_acceleration(Fx, mass)
+    auv_acceleration = [Ax, Ay]
+    return auv_acceleration
+
+def calculate_auv_angular_acceleration(F_magnitude, F_angle, inertia=1, 
+                                       thruster_distance=0.5):
+    
+    '''
+    
+    '''
+
+    F_angle = (F_angle*180)/np.pi
+    tau = calculate_torque(F_magnitude, F_angle, thruster_distance)
+    auv_angular_acceleration = calculate_angular_acceleration(tau, inertia)
+    return auv_angular_acceleration
+
+def calculate_auv2_acceleration(T, alpha, mass=100):
+    T = [[np.cos(alpha), np.cos(alpha), -np.cos(alpha), -np.cos(alpha)],
+         [np.sin(alpha)], -np.sin(alpha), -np.sin(alpha), np.sin(alpha)]
+    
     

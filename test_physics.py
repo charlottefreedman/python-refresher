@@ -43,3 +43,24 @@ class TestPhysics(unittest.TestCase):
 
     def test_calculate_torque(self):
         self.assertEqual(physics.calculate_torque(10, 10, 10), -54.40211108893698)
+        self.assertEqual(physics.calculate_torque(90, 8, 9), 801.3801797649392)
+
+        self.assertNotEqual(physics.calculate_torque(18, 18, 18), 97)
+        self.assertNotEqual(physics.calculate_torque(76, 2, 4), 3)
+
+        self.assertRaises(ValueError, physics.calculate_torque, 0, 10, 10)
+        self.assertRaises(ValueError, physics.calculate_torque, -10, 10, 10)
+        self.assertRaises(ValueError, physics.calculate_torque, 10, -13, -10)
+        self.assertRaises(ValueError, physics.calculate_torque, 10, -10, 0)
+
+    def test_calculate_moment_of_inertia(self):
+        self.assertEqual(physics.calculate_moment_of_inertia(1, 1), 1)
+        self.assertEqual(physics.calculate_moment_of_inertia(5, 2), 20)
+
+        self.assertNotEqual(physics.calculate_moment_of_inertia(1, 3), 6)
+        self.assertNotEqual(physics.calculate_moment_of_inertia(8, 7), 50)
+
+        self.assertRaises(ValueError, physics.calculate_moment_of_inertia, 0, 1)
+        self.assertRaises(ValueError, physics.calculate_moment_of_inertia, -1, 1)
+        self.assertRaises(ValueError, physics.calculate_moment_of_inertia, 1, 0)
+        self.assertRaises(ValueError, physics.calculate_moment_of_inertia, 1, -1)
