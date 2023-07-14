@@ -161,7 +161,8 @@ def calculate_auv_acceleration(F_magnitude, F_angle, mass=100,
 
     F_magnitude is in N, F_angle is in radians, mass is in kg
     '''
-
+    if F_magnitude <= 0:
+        raise ValueError("Invalid magnitude input")
     Fy = F_magnitude * np.sin(F_angle)
     Fx = F_magnitude * np.cos(F_angle)
     Ay = calculate_acceleration(Fy, mass)
@@ -173,16 +174,80 @@ def calculate_auv_angular_acceleration(F_magnitude, F_angle, inertia=1,
                                        thruster_distance=0.5):
     
     '''
-    
+    Problem 8.2: Calculate the angular acceleration of the auv
+
+    In order to find the angular acceleration we first have to convert the units of F_angle
+    from radians to degrees by multiplying by 180/pi. Then using this we can solve for
+    torque by calling the calculate_torque function from above. Now that we have calculated
+    torque we can plug this into the calculate_angular_acceleration function to find the
+    angular acceleration of our auv
+
+    auv_angular_acceleration is returned in rad/s**2
     '''
 
+    if F_magnitude <= 0:
+        raise ValueError("Invalid magnitude input")
+    elif  inertia <= 0:
+        raise ValueError("Invalid inertia input")
     F_angle = (F_angle*180)/np.pi
     tau = calculate_torque(F_magnitude, F_angle, thruster_distance)
     auv_angular_acceleration = calculate_angular_acceleration(tau, inertia)
     return auv_angular_acceleration
 
-def calculate_auv2_acceleration(T, alpha, mass=100):
-    T = [[np.cos(alpha), np.cos(alpha), -np.cos(alpha), -np.cos(alpha)],
-         [np.sin(alpha)], -np.sin(alpha), -np.sin(alpha), np.sin(alpha)]
-    
-    
+def calculate_auv2_acceleration(T, alpha, theta, mass=100):
+
+    '''
+    Problem 9.1: Calculate AUV2 acceleration
+
+    In order to calculate the acceleration of the auv, we use the T array, an array of
+    magnitudes of the forces applied, and multiply this by x which allows for the total
+    force in the x' and y' direction to be found. Then using theta, this is flipped to a 
+    global perspective in order to find the acceleration of the AUV in the x and y 
+    direction. These are returned as an array [acc in x, acc in y]
+
+    F_magnitude is in N, F_angle is in radians, mass is in kg
+    '''
+
+    x = [[np.cos(alpha), np.cos(alpha), -np.cos(alpha), -np.cos(alpha)],
+            [np.sin(alpha), -np.sin(alpha), -np.sin(alpha), np.sin(alpha)]]
+    y = [[np.cos(theta), -np.sin(theta)],
+        [np.sin(theta), np.cos(theta)]]
+    z = np.matmul(x, T)
+    F = np.matmul(z, y)
+    Ax = F[0]/mass
+    Ay = F[1]/mass
+    auv2_acceleration = [Ax, Ay]
+    return auv2_acceleration
+
+def calculate_auv2_angular_acceleration(T, alpha, L, l, inertia=100):
+
+    '''
+    Problem 9.2: Calculate angular acceleration for auv2
+
+    In order to solve for angular acceleration we need to use T, an array of
+    the magnitudes of the forces applied on the auv, and multiply this by x in order
+    to find the effects the force has in the x and y directions (this is given by F)
+    To solve for total force being applied we add the force in the x direction
+    and the y direction for Fnet. We can then use this net force to plug into our
+    calculate_torque function and then use the returned value to input into the
+    calculate_angular_acceleration function along with r. r was found by using the 
+    pythagorean theorem to find r, the hypotenuse, of a triangle where L and l are
+    the two legs lengths.
+
+    auv2_angular_acceleration is returned in rad/s**2
+    '''
+
+    if  L <= 0:
+        raise ValueError("Invalid L input")
+    elif  l <= 0:
+        raise ValueError("Invalid l input")
+    elif inertia <=0:
+        raise ValueError("Invalid inertia input")
+    x = [[np.cos(alpha), np.cos(alpha), -np.cos(alpha), -np.cos(alpha)],
+            [np.sin(alpha), -np.sin(alpha), -np.sin(alpha), np.sin(alpha)]]
+    F = np.matmul(x, T)
+    Fnet = F[0] + F[1]
+    rx = np.sqrt((L*L) + (l*l))
+    tau = Fnet * rx
+    auv2_angular_acceleration = calculate_angular_acceleration(tau, rx)
+    return auv2_angular_acceleration
