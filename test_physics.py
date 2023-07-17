@@ -42,8 +42,8 @@ class TestPhysics(unittest.TestCase):
         self.assertRaises(ValueError, physics.calculate_angular_acceleration, 9, 0)
 
     def test_calculate_torque(self):
-        self.assertEqual(physics.calculate_torque(10, 10, 10), -54.40211108893698)
-        self.assertEqual(physics.calculate_torque(90, 8, 9), 801.3801797649392)
+        self.assertEqual(physics.calculate_torque(10, 10, 10), -54.40211)
+        self.assertEqual(physics.calculate_torque(90, 8, 9), 801.38018)
 
         self.assertNotEqual(physics.calculate_torque(18, 18, 18), 97)
         self.assertNotEqual(physics.calculate_torque(76, 2, 4), 3)
@@ -66,8 +66,8 @@ class TestPhysics(unittest.TestCase):
         self.assertRaises(ValueError, physics.calculate_moment_of_inertia, 1, -1)
 
     def test_calculate_auv_acceleration(self):
-        self.assertEqual(physics.calculate_auv_acceleration(10, 2,), [-0.04161468365471424, 0.09092974268256818])
-        self.assertEqual(physics.calculate_auv_acceleration(9, 8), [-0.013095003042775217, 0.08904224219610436])
+        self.assertEqual(physics.calculate_auv_acceleration(10, 2,), [-0.04161, 0.09093])
+        self.assertEqual(physics.calculate_auv_acceleration(9, 8), [-0.0131, 0.08904])
 
         self.assertNotEqual(physics.calculate_auv_acceleration(9, 8), [20, 20])
         self.assertNotEqual(physics.calculate_auv_acceleration(234, 0.9), [7.6, 8])
@@ -76,8 +76,8 @@ class TestPhysics(unittest.TestCase):
         self.assertRaises(ValueError, physics.calculate_auv_acceleration, 0, 76)
 
     def test_calculate_auv_angular_acceleration(self):
-        self.assertEqual(physics.calculate_auv_angular_acceleration(9, 3), 3.52569101027556)
-        self.assertEqual(physics.calculate_auv_angular_acceleration(8, 7.95), 0.11793347338958152)
+        self.assertEqual(physics.calculate_auv_angular_acceleration(9, 3), 3.52569)
+        self.assertEqual(physics.calculate_auv_angular_acceleration(8, 7.95), 0.11793)
 
         self.assertNotEqual(physics.calculate_auv_angular_acceleration(9, 8), 8)
         self.assertNotEqual(physics.calculate_auv_angular_acceleration(7, 737), 6)
@@ -87,17 +87,17 @@ class TestPhysics(unittest.TestCase):
         self.assertRaises(ValueError, physics.calculate_auv_angular_acceleration, 9, 7, -3)
 
     def test_calculate_auv2_acceleration(self):
-        self.assertEqual(physics.calculate_auv2_acceleration([3, 3, 3, 3], 10, 10), [-1.863113061776228e-18, 1.2079695263830675e-18])
-        self.assertEqual(physics.calculate_auv2_acceleration([5, 6, 2, 9], 98, 0.76), [-0.02370090407111011, -0.024936469723481437])
+        self.assertEqual(physics.calculate_auv2_acceleration([3, 3, 3, 3], 10, 10), [0.00000, 0.00000])
+        self.assertEqual(physics.calculate_auv2_acceleration([5, 6, 2, 9], 98, 0.76), [-0.0237, -0.02494])
 
         self.assertNotEqual(physics.calculate_auv2_acceleration([0, 3, 4.5, 9], 9, 72), [23.5, -0.2222])
-        self.assertNotEqual(physics.calculate_auv2_acceleration([3, 1, 5.6, 0.2], 8, 3), [7, 0.000432583])
+        self.assertNotEqual(physics.calculate_auv2_acceleration([3, 1, 5.6, 0.2], 8, 3), [7, 0.00043])
 
     def test_calculate_auv2_angular_acceleration(self):
-        self.assertEqual(physics.calculate_auv2_angular_acceleration([3, 3, 3, 3], 4, 7, 5), -2.220446049250313e-16)
-        self.assertEqual(physics.calculate_auv2_angular_acceleration([5, 6, 2, 9], 2, 4.3, 0.4), 5.455784560954092)
+        self.assertEqual(physics.calculate_auv2_angular_acceleration([3, 3, 3, 3], 4, 7, 5), 0)
+        self.assertEqual(physics.calculate_auv2_angular_acceleration([5, 6, 2, 9], 2, 4.3, 0.4), 5.45578)
 
-        self.assertNotEqual(physics.calculate_auv2_angular_acceleration([0, 3, 4.5, 9], 23, 1, 2), 9.0003728)
+        self.assertNotEqual(physics.calculate_auv2_angular_acceleration([0, 3, 4.5, 9], 23, 1, 2), 9)
         self.assertNotEqual(physics.calculate_auv2_angular_acceleration([3, 1, 5.6, 0.2], 23, 9.88, 0.0002), -0.002)
 
         self.assertRaises(ValueError, physics.calculate_auv2_angular_acceleration, [3, 3, 3, 3], 23, -1, 1)

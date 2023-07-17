@@ -28,7 +28,7 @@ def calculate_buoyancy(v, density_fluid):
     elif v < 0:
         raise ValueError("volume cannot be negative")
     buoyancy = density_fluid * v * g
-    return buoyancy  # in N (newtons)
+    return np.round(buoyancy, 5)  # in N (newtons)
 
 
 def will_it_float(v, mass):
@@ -73,7 +73,7 @@ def calculate_pressure(depth):
 
     depth = abs(depth)
     pressure = density_water * g * depth + pressure_at_surface
-    return pressure  # in Pa (pascals)
+    return np.round(pressure, 5)  # in Pa (pascals)
 
 def calculate_acceleration(force, mass):
 
@@ -88,7 +88,7 @@ def calculate_acceleration(force, mass):
     if mass <= 0:
         raise ValueError("Invalid mass input")
     acceleration = force / mass
-    return acceleration # in m/s**2
+    return np.round(acceleration, 5) # in m/s**2
 
 def calculate_angular_acceleration(tau, I):
 
@@ -106,7 +106,7 @@ def calculate_angular_acceleration(tau, I):
     if I <= 0:
         raise ValueError("Invalid inertia input")
     angular_acceleration = tau/I
-    return angular_acceleration #N/kgm
+    return np.round(angular_acceleration, 5) #N/kgm
 
 def calculate_torque(F_magnitude, F_direction, r):
 
@@ -128,7 +128,7 @@ def calculate_torque(F_magnitude, F_direction, r):
         raise ValueError("Invalid r input")
     x = F_magnitude * np.sin(F_direction)
     torque = x * r
-    return torque #Nm
+    return np.round(torque, 5) #Nm
 
 def calculate_moment_of_inertia(mass, r):
 
@@ -146,7 +146,7 @@ def calculate_moment_of_inertia(mass, r):
     elif  r <= 0:
         raise ValueError("Invalid r input")
     moment_of_inertia = mass * r * r
-    return moment_of_inertia #kg(m**2)
+    return np.round(moment_of_inertia, 5) #kg(m**2)
 
 def calculate_auv_acceleration(F_magnitude, F_angle, mass=100,
                                 volume=0.1, thruster_distance=0.5):
@@ -167,7 +167,7 @@ def calculate_auv_acceleration(F_magnitude, F_angle, mass=100,
     Fx = F_magnitude * np.cos(F_angle)
     Ay = calculate_acceleration(Fy, mass)
     Ax = calculate_acceleration(Fx, mass)
-    auv_acceleration = [Ax, Ay]
+    auv_acceleration = [np.round(Ax, 5), np.round(Ay, 5)]
     return auv_acceleration
 
 def calculate_auv_angular_acceleration(F_magnitude, F_angle, inertia=1, 
@@ -192,7 +192,7 @@ def calculate_auv_angular_acceleration(F_magnitude, F_angle, inertia=1,
     F_angle = (F_angle*180)/np.pi
     tau = calculate_torque(F_magnitude, F_angle, thruster_distance)
     auv_angular_acceleration = calculate_angular_acceleration(tau, inertia)
-    return auv_angular_acceleration
+    return np.round(auv_angular_acceleration, 5)
 
 def calculate_auv2_acceleration(T, alpha, theta, mass=100):
 
@@ -216,7 +216,7 @@ def calculate_auv2_acceleration(T, alpha, theta, mass=100):
     F = np.matmul(z, y)
     Ax = F[0]/mass
     Ay = F[1]/mass
-    auv2_acceleration = [Ax, Ay]
+    auv2_acceleration = [np.round(Ax, 5), np.round(Ay, 5)]
     return auv2_acceleration
 
 def calculate_auv2_angular_acceleration(T, alpha, L, l, inertia=100):
@@ -250,4 +250,4 @@ def calculate_auv2_angular_acceleration(T, alpha, L, l, inertia=100):
     rx = np.sqrt((L*L) + (l*l))
     tau = Fnet * rx
     auv2_angular_acceleration = calculate_angular_acceleration(tau, rx)
-    return auv2_angular_acceleration
+    return np.round(auv2_angular_acceleration, 5)
