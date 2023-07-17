@@ -126,6 +126,7 @@ def calculate_torque(F_magnitude, F_direction, r):
         raise ValueError("Invalid magnitude input")
     elif  r <= 0:
         raise ValueError("Invalid r input")
+    F_direction = F_direction * np.pi / 180
     x = F_magnitude * np.sin(F_direction)
     torque = x * r
     return np.round(torque, 5) #Nm
@@ -189,7 +190,6 @@ def calculate_auv_angular_acceleration(F_magnitude, F_angle, inertia=1,
         raise ValueError("Invalid magnitude input")
     elif  inertia <= 0:
         raise ValueError("Invalid inertia input")
-    F_angle = (F_angle*180)/np.pi
     tau = calculate_torque(F_magnitude, F_angle, thruster_distance)
     auv_angular_acceleration = calculate_angular_acceleration(tau, inertia)
     return np.round(auv_angular_acceleration, 5)
