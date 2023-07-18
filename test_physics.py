@@ -67,15 +67,15 @@ class TestPhysics(unittest.TestCase):
         self.assertRaises(ValueError, physics.calculate_moment_of_inertia, 1, -1)
 
     def test_calculate_auv_acceleration(self):
-        np.testing.assert_array_equal(physics.calculate_auv_acceleration(10, 2,), np.array([-0.04161468365471424, 0.09092974268256818]))
-        np.testing.assert_array_equal(physics.calculate_auv_acceleration(9, 8), np.array([-0.013095003042775217, 0.08904224219610436]))
+        np.testing.assert_array_almost_equal(physics.calculate_auv_acceleration(10, 2,), np.array([-0.0416146, 0.0909297]))
+        np.testing.assert_array_almost_equal(physics.calculate_auv_acceleration(9, 8), np.array([-0.0130950, 0.089042]))
 
         self.assertRaises(ValueError, physics.calculate_auv_acceleration, -10, 0)
         self.assertRaises(ValueError, physics.calculate_auv_acceleration, 0, 76)
 
     def test_calculate_auv_angular_acceleration(self):
-        self.assertAlmostEqual(physics.calculate_auv_angular_acceleration(9, 3), 0.235511803)
-        self.assertAlmostEqual(physics.calculate_auv_angular_acceleration(8, 7.95), 0.5532355)
+        self.assertAlmostEqual(physics.calculate_auv_angular_acceleration(9, 3), 0.6350400362694024)
+        self.assertAlmostEqual(physics.calculate_auv_angular_acceleration(8, 7.95), 3.9815751090304796)
 
         self.assertNotEqual(physics.calculate_auv_angular_acceleration(9, 8), 8)
         self.assertNotEqual(physics.calculate_auv_angular_acceleration(7, 737), 6)
@@ -85,23 +85,32 @@ class TestPhysics(unittest.TestCase):
         self.assertRaises(ValueError, physics.calculate_auv_angular_acceleration, 9, 7, -3)
 
     def test_calculate_auv2_acceleration(self):
-        np.testing.assert_array_equal(physics.calculate_auv2_acceleration([3, 3, 3, 3], 10, 10), np.array([-1.863113061776228e-18, 1.2079695263830675e-18]))
-        np.testing.assert_array_equal(physics.calculate_auv2_acceleration([5, 6, 2, 9], 98, 0.76), np.array([-0.02370090407111011, -0.024936469723481437]))
+        np.testing.assert_array_almost_equal(physics.calculate_auv2_acceleration(np.array([4, 2, 3, 5]), 10, 10), np.array([-0.025919,  0.009129]))
+        np.testing.assert_array_almost_equal(physics.calculate_auv2_acceleration(np.array([5, 6, 2, 9]), 98, 0.76), np.array([ 0.023701, -0.024936]))
 
     def test_calculate_auv2_angular_acceleration(self):
-        self.assertAlmostEqual(physics.calculate_auv2_angular_acceleration([3, 3, 3, 3], 4, 7, 5), 0)
-        self.assertAlmostEqual(physics.calculate_auv2_angular_acceleration([5, 6, 2, 9], 2, 4.3, 0.4), 5.45578456)
+        self.assertAlmostEqual(physics.calculate_auv2_angular_acceleration(np.array([3, 3, 3, 3]), 4, 7, 5), 0)
+        self.assertAlmostEqual(physics.calculate_auv2_angular_acceleration(np.array([5, 6, 2, 9]), 2, 4.3, 0.4), -0.2994816160585259)
 
-        self.assertNotEqual(physics.calculate_auv2_angular_acceleration([0, 3, 4.5, 9], 23, 1, 2), 9)
-        self.assertNotEqual(physics.calculate_auv2_angular_acceleration([3, 1, 5.6, 0.2], 23, 9.88, 0.0002), -0.002)
+        self.assertNotEqual(physics.calculate_auv2_angular_acceleration(np.array([0, 3, 4.5, 9]), 23, 1, 2), 9)
+        self.assertNotEqual(physics.calculate_auv2_angular_acceleration(np.array([3, 1, 5.6, 0.2]), 23, 9.88, 0.0002), -0.002)
 
-        self.assertRaises(ValueError, physics.calculate_auv2_angular_acceleration, [3, 3, 3, 3], 23, -1, 1)
-        self.assertRaises(ValueError, physics.calculate_auv2_angular_acceleration, [5, 6, 2, 9], 23, 0, 1)
-        self.assertRaises(ValueError, physics.calculate_auv2_angular_acceleration, [0, 3, 4.5, 9], 23, 1, -1)
-        self.assertRaises(ValueError, physics.calculate_auv2_angular_acceleration, [3, 1, 5.6, 0.2], 23, 1, 0)
-        self.assertRaises(ValueError, physics.calculate_auv2_angular_acceleration, [3, 1, 5.6, 0.2], 23, 1, 1, 0)
-        self.assertRaises(ValueError, physics.calculate_auv2_angular_acceleration, [3, 1, 5.6, 0.2], 23, 1, 1, -1)
+        self.assertRaises(ValueError, physics.calculate_auv2_angular_acceleration, np.array([3, 3, 3, 3]), 23, -1, 1)
+        self.assertRaises(ValueError, physics.calculate_auv2_angular_acceleration, np.array([5, 6, 2, 9]), 23, 0, 1)
+        self.assertRaises(ValueError, physics.calculate_auv2_angular_acceleration, np.array([0, 3, 4.5, 9]), 23, 1, -1)
+        self.assertRaises(ValueError, physics.calculate_auv2_angular_acceleration, np.array([3, 1, 5.6, 0.2]), 23, 1, 0)
+        self.assertRaises(ValueError, physics.calculate_auv2_angular_acceleration, np.array([3, 1, 5.6, 0.2]), 23, 1, 1, 0)
+        self.assertRaises(ValueError, physics.calculate_auv2_angular_acceleration, np.array([3, 1, 5.6, 0.2]), 23, 1, 1, -1)
+        self.assertRaises(TypeError, physics.calculate_auv2_angular_acceleration, [3, 1, 5.6, 0.2], 23, 1, 1, -1)
 
-
-
-
+    def test_simulate_auv2_motion(self):
+        (time, x, y, theta, v, omega, linear_acceleration) = physics.simulate_auv2_motion(
+            np.array([10, 0, 10, 0]), np.pi / 4, 1, 1, 100, 100, 0.1, 0.3, 0, 0, np.pi /4)
+        np.testing.assert_array_almost_equal(time, np.array([0.0, 0.1, 0.2]))
+        np.testing.assert_array_almost_equal(x, np.array([0, 0, 0]))
+        np.testing.assert_array_almost_equal(y, np.array([0, 0, 0]))
+        np.testing.assert_array_almost_equal(
+            theta, np.array([np.pi/4, np.pi/4, np.pi/4]))
+        np.testing.assert_array_almost_equal(v, np.array([[0, 0], [0, 0], [0, 0]]))
+        np.testing.assert_array_almost_equal(omega, np.array([0, 0, 0.028284]))
+        np.testing.assert_array_almost_equal(linear_acceleration, np.array([[0, 0], [0, 0], [0, 0]]))

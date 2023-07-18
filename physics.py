@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 g = 9.81  # m/s**2
 buoyancy = 0  # N
@@ -13,6 +14,7 @@ tau = 0 #Nm
 I = 0 #kgm**2
 
 
+
 def calculate_buoyancy(v, density_fluid):
     """
     Problem 1: Calculate the buoyancy of an object in a fluid
@@ -25,7 +27,7 @@ def calculate_buoyancy(v, density_fluid):
 
     if density_fluid < 0:
         raise ValueError("density cannot be negative")
-    elif v < 0:
+    if v < 0:
         raise ValueError("volume cannot be negative")
     buoyancy = density_fluid * v * g
     return buoyancy  # in N (newtons)
@@ -49,13 +51,13 @@ def will_it_float(v, mass):
 
     if v <= 0:
         raise ValueError("Invalid volume input")
-    elif mass <= 0:
+    if mass <= 0:
         raise ValueError("Invalid mass input")
     weight = mass * g
     force_g = buoyancy - weight
     if buoyancy > force_g:
         return True
-    elif buoyancy < force_g:
+    if buoyancy < force_g:
         return False
     else:
         return None
@@ -104,7 +106,7 @@ def calculate_angular_acceleration(tau, I):
     '''
 
     if I <= 0:
-        raise ValueError("Invalid inertia input")
+        raise ValueError("Invalid values!")
     angular_acceleration = tau/I
     return angular_acceleration #N/kgm
 
@@ -123,12 +125,11 @@ def calculate_torque(F_magnitude, F_direction, r):
     '''
 
     if F_magnitude <= 0:
-        raise ValueError("Invalid magnitude input")
-    elif  r <= 0:
-        raise ValueError("Invalid r input")
-    F_direction = F_direction * np.pi / 180
-    x = F_magnitude * np.sin(F_direction)
-    torque = x * r
+        raise ValueError("Invalid values!")
+    if  r <= 0:
+        raise ValueError("Invalid values!")
+    F_direction_rad = (F_direction * np.pi) / 180
+    torque = F_magnitude * np.sin(F_direction_rad) * r
     return torque #Nm
 
 def calculate_moment_of_inertia(mass, r):
@@ -143,9 +144,9 @@ def calculate_moment_of_inertia(mass, r):
     '''
 
     if mass <= 0:
-        raise ValueError("Invalid mass input")
-    elif  r <= 0:
-        raise ValueError("Invalid r input")
+        raise ValueError("Invalid values!")
+    if  r <= 0:
+        raise ValueError("Invalid values!")
     moment_of_inertia = mass * np.power(r, 2)
     return moment_of_inertia #kg(m**2)
 
@@ -162,10 +163,8 @@ def calculate_auv_acceleration(F_magnitude, F_angle, mass=100,
 
     F_magnitude is in N, F_angle is in radians, mass is in kg
     '''
-    if F_magnitude <= 0:
-        raise ValueError("Invalid magnitude input")
-    elif mass <= 0:
-        raise ValueError("Invalid mass input")
+    if F_magnitude <= 0 or mass<= 0 or volume <= 0 or thruster_distance <= 0:
+        raise ValueError("Invalid values!")
     
     Fy = F_magnitude * np.sin(F_angle)
     Fx = F_magnitude * np.cos(F_angle)
@@ -189,12 +188,11 @@ def calculate_auv_angular_acceleration(F_magnitude, F_angle, inertia=1,
     auv_angular_acceleration is returned in rad/s**2
     '''
 
-    if F_magnitude <= 0:
-        raise ValueError("Invalid magnitude input")
-    elif  inertia <= 0:
-        raise ValueError("Invalid inertia input")
+    if F_magnitude <= 0 or inertia <= 0 or thruster_distance <= 0:
+        raise ValueError("Invalid values!")
     tau = calculate_torque(F_magnitude, F_angle, thruster_distance)
-    auv_angular_acceleration = calculate_angular_acceleration(tau, inertia)
+    perpendicular_force = F_magnitude*np.sin(F_angle)
+    auv_angular_acceleration = calculate_angular_acceleration(perpendicular_force*thruster_distance, inertia)
     return auv_angular_acceleration
 
 def calculate_auv2_acceleration(T, alpha, theta, mass=100):
@@ -210,17 +208,19 @@ def calculate_auv2_acceleration(T, alpha, theta, mass=100):
 
     F_magnitude is in N, F_angle is in radians, mass is in kg
     '''
+    if type(T) != np.ndarray:
+        raise TypeError("T has to be an ndarray!")
     if mass <= 0:
-        raise ValueError("Invalid mass input")
-    # if np.shape(T) != (4, 1):
-    #     raise ValueError("Invalid T shape")
-    x = np.array([[np.cos(alpha), np.cos(alpha), -np.cos(alpha), -np.cos(alpha)],
+        raise ValueError("Invalid values!")
+    components = np.array([[np.cos(alpha), np.cos(alpha), -np.cos(alpha), -np.cos(alpha)],
             [np.sin(alpha), -np.sin(alpha), -np.sin(alpha), np.sin(alpha)]])
-    y = np.array([[np.cos(theta), -np.sin(theta)],
+    rotation_matrix = np.array([[np.cos(theta), -np.sin(theta)],
         [np.sin(theta), np.cos(theta)]])
-    z = np.matmul(x, T)
-    F = np.matmul(z, y)
-    auv2_acceleration = calculate_acceleration(F, mass)
+    net_force_prime = np.matmul(components, T)
+    net_force = np.matmul(rotation_matrix, net_force_prime)
+    Ax = net_force[0]/mass
+    Ay = net_force[1]/mass
+    auv2_acceleration = np.array([Ax, Ay])
     return auv2_acceleration
 
 def calculate_auv2_angular_acceleration(T, alpha, L, l, inertia=100):
@@ -241,17 +241,63 @@ def calculate_auv2_angular_acceleration(T, alpha, L, l, inertia=100):
     auv2_angular_acceleration is returned in rad/s**2
     '''
 
-    if  L <= 0:
-        raise ValueError("Invalid L input")
-    elif  l <= 0:
-        raise ValueError("Invalid l input")
-    elif inertia <=0:
-        raise ValueError("Invalid inertia input")
-    x = np.array([[np.cos(alpha), np.cos(alpha), -np.cos(alpha), -np.cos(alpha)],
-            [np.sin(alpha), -np.sin(alpha), -np.sin(alpha), np.sin(alpha)]])
-    F = np.matmul(x, T)
-    Fnet = F[0] + F[1]
-    rx = np.sqrt((np.power(L, 2)) + (np.power(l, 2)))
-    tau = Fnet * rx
-    auv2_angular_acceleration = calculate_angular_acceleration(tau, rx)
+    if type(T) != np.ndarray:
+        raise TypeError("T has to be an ndarray!")
+    if  L <= 0 or l <= 0 or inertia <= 0:
+        raise ValueError("Invalid values!")
+    components = np.array([L*np.sin(alpha)+l*np.cos(alpha), 
+                  -L*np.sin(alpha)-l*np.cos(alpha),
+                  L*np.sin(alpha)+l*np.cos(alpha),
+                  -L*np.sin(alpha)-l*np.cos(alpha)])
+    net_torque = np.matmul(components, T)
+    auv2_angular_acceleration = calculate_angular_acceleration(net_torque, inertia)
     return auv2_angular_acceleration
+
+def simulate_auv2_motion(T, alpha, L, l, inertia=100, mass=100, dt=0.1, t_final=10, x0=0, y0=0, theta0=0):
+    time = np.arange(0, t_final, dt)
+    x = np.zeros_like(time)
+    x[0] = x0
+    y = np.zeros_like(time)
+    y[0] = y0
+    theta = np.zeros_like(time)
+    theta[0] = theta0
+    v = np.zeros(shape =(len(time), 2))
+    omega = np.zeros_like(time)
+    linear_acceleration = np.zeros(shape =(len(time), 2))
+    angular_acceleration = np.zeros_like(time)
+    for i in range (1, len(time)):
+        linear_acceleration[i][0] = calculate_auv2_acceleration(T, alpha, theta[i], mass)[0]
+        linear_acceleration[i][1] = calculate_auv2_acceleration(T, alpha, theta[i], mass)[1]
+        v[i][0] = v[i-1][0] + linear_acceleration[i][0]*dt
+        v[i][1] = v[i-1][1] + linear_acceleration[i][1]*dt
+        x[i] = x[i-1] + v[i][0]*dt
+        y[i] = y[i-1] + v[i][1]*dt
+
+        angular_acceleration[i] = calculate_auv2_angular_acceleration(T, alpha, L, l, inertia)
+        omega[i] = omega[i-1] + angular_acceleration[i]*dt
+        theta[i] = np.mod(theta[i-1] + omega[i-1]*dt, (2*np.pi))
+    ret = (time, x, y, theta, v, omega, linear_acceleration)
+    return ret
+
+def plot_auv2_motion(time, x, y, theta, v, omega, linear_acceleration):
+    plt.plot(time, x, label="X: Position")
+    plt.plot(time, y, label="Y: Position")
+    vx = np.zeros_like(time)
+    vy = np.zeros_like(time)
+    ax = np.zeros_like(time)
+    ay = np.zeros_like(time)
+    for i in range (0, len(v)):
+        vx[i] = v[i][0]
+        vy[i] = v[i][1]
+        ax[i] = linear_acceleration[i][0]
+        ay[i] = linear_acceleration[i][1]
+    plt.plot(time, vx, label="X: Velocity")
+    plt.plot(time, vy, label="Y: Velocity")
+    plt.plot(time, ax, label="X: Acceleration")
+    plt.plot(time, ay, label="Y: Acceleration")
+    plt.plot(time, omega, label="Angular Velocity")
+    plt.plot(time, theta, label="Angular Displacement")
+    plt.xlabel("Time (s)")
+    plt.ylabel("Variables")
+    plt.legend()
+    plt.show()
